@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+    <!--<include file="db/changesets/release1/V1_001_EXTENSION_UUID_OSSP.sql"/>-->
+    <!--<include file="db/changesets/release/V1_002_ACCOUNT.sql"/>-->
+
+</databaseChangeLog>
+
