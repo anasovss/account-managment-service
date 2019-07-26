@@ -29,7 +29,16 @@ public class AccountService {
      * @param AccountNumber номер счета внесения средств
      * @param sumRub сумма в рублях
      */
+    @Transactional
     public void deposit(String AccountNumber, BigDecimal sumRub) {
+
+    }
+    /**
+     * @param AccountNumber номер счета внесения средств
+     * @param sumRub сумма в рублях
+     */
+    @Transactional
+    public void withdraw(String AccountNumber, BigDecimal sumRub) {
 
     }
 }
