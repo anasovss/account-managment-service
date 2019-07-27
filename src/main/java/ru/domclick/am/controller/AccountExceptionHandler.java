@@ -23,17 +23,17 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+import ru.domclick.am.account.api.AccountsApi;
 import ru.domclick.am.exception.BadRequestAccountException;
+import ru.domclick.am.exception.NotFoundAccountException;
 import ru.domclick.am.exception.ServiceErrorException;
-
-import javax.validation.ConstraintViolationException;
 
 
 /**
  * Общий обработчик ошибок с сервера
  */
 @Slf4j
-@ControllerAdvice(assignableTypes = AccountApi.class)
+@ControllerAdvice(assignableTypes = AccountsApi.class)
 public class AccountExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = {ServiceErrorException.class})
@@ -42,11 +42,17 @@ public class AccountExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(value = {
-            BadRequestAccountException.class,
-            ConstraintViolationException.class
+            BadRequestAccountException.class
     })
     public ResponseEntity<Object> handleBadRequestException(Exception ex, WebRequest request) {
         return handleExceptionInternal(ex, getMessage(ex), new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+    }
+
+    @ExceptionHandler(value = {
+            NotFoundAccountException.class
+    })
+    public ResponseEntity<Object> notFoundRequestException(Exception ex, WebRequest request) {
+        return handleExceptionInternal(ex, getMessage(ex), new HttpHeaders(), HttpStatus.NOT_FOUND, request);
     }
 
     @Override

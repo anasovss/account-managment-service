@@ -83,26 +83,24 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
             <plugin>
-                <groupId>org.openapitools</groupId>
-                <artifactId>openapi-generator-maven-plugin</artifactId>
-                <version>4.0.0</version>
+                <groupId>io.swagger</groupId>
+                <artifactId>swagger-codegen-maven-plugin</artifactId>
+                <version>2.3.1</version>
                 <executions>
                     <execution>
-                        <id>generate-api</id>
                         <goals>
                             <goal>generate</goal>
                         </goals>
                         <configuration>
                             <inputSpec>${project.basedir}/src/main/resources/specs/account-api.yaml</inputSpec>
                             <language>spring</language>
+                            <output>${basedir}/target/generated-sources</output>
+                            <language>spring</language>
                             <apiPackage>ru.domclick.am.account.api</apiPackage>
                             <modelPackage>ru.domclick.am.account.dto</modelPackage>
                             <generateSupportingFiles>false</generateSupportingFiles>
                             <configOptions>
                                 <sourceFolder>src/gen/java/main</sourceFolder>
-                                <interfaceOnly>true</interfaceOnly>
-                                <dateLibrary>java8</dateLibrary>
-                                <java8>false</java8>
                             </configOptions>
                         </configuration>
                     </execution>
