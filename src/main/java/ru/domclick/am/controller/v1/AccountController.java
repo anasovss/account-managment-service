@@ -34,7 +34,7 @@ public class AccountController implements AccountsApi {
     @Override
     public ResponseEntity<OperationResponse> transfer(TransferRequest transferRequest) {
         if (transferRequest.getAccountNumberFrom().equals(transferRequest.getAccountNumberTo())) {
-            throw new BadRequestAccountException("");
+            throw new BadRequestAccountException("Account numbers are the same");
         }
         accountService.transfer(
                 transferRequest.getAccountNumberFrom(),
