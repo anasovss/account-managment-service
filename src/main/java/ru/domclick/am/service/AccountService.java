@@ -1,6 +1,7 @@
 package ru.domclick.am.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -11,8 +12,6 @@ import ru.domclick.am.model.Account;
 import ru.domclick.am.repository.AccountRepository;
 
 import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.UUID;
 
 @Slf4j
 @Service
@@ -28,11 +27,12 @@ public class AccountService {
      * @param sumRub            сумма перевода в рублях
      */
     @Transactional
+    @SneakyThrows
     public void transfer(String accountNumberFrom, String accountNumberTo, BigDecimal sumRub) {
         String firstLockAccountNumber = accountNumberFrom.compareTo(accountNumberTo) > 0 ? accountNumberFrom : accountNumberTo;
         String secondLockAccountNumber = firstLockAccountNumber.equals(accountNumberFrom) ? accountNumberTo : accountNumberFrom;
-        Account firstAccount = accountRepository.lockByAccountNumber(firstLockAccountNumber);
-        Account secondAccount = accountRepository.lockByAccountNumber(secondLockAccountNumber);
+        Account firstAccount = accountRepository.lockByAccountNumber(firstLockAccountNumber).orElseThrow(() -> new NotFoundAccountException(firstLockAccountNumber));
+        Account secondAccount = accountRepository.lockByAccountNumber(secondLockAccountNumber).orElseThrow(() -> new NotFoundAccountException(firstLockAccountNumber));
         Account accountTo = firstAccount.getAccountNumber().equals(accountNumberTo) ? firstAccount : secondAccount;
         Account accountFrom = firstAccount.getAccountNumber().equals(accountNumberFrom) ? firstAccount : secondAccount;
         if (accountFrom.getSumRub().compareTo(sumRub) < 0) {
@@ -43,22 +43,23 @@ public class AccountService {
     }
 
     /**
-     * @param AccountNumber номер счета внесения средств
+     * @param accountNumber номер счета внесения средств
      * @param sumRub        сумма зачисления в рублях
      */
     @Transactional
-    public void deposit(String AccountNumber, BigDecimal sumRub) {
-        Account account = accountRepository.lockByAccountNumber(AccountNumber);
+    public void deposit(String accountNumber, BigDecimal sumRub) {
+        Account account = accountRepository.lockByAccountNumber(accountNumber).orElseThrow(() -> new NotFoundAccountException(accountNumber));
         account.setSumRub(account.getSumRub().add(sumRub));
     }
 
     /**
-     * @param AccountNumber номер счета внесения средств
+     * @param accountNumber номер счета внесения средств
      * @param sumRub        сумма списания в рублях
      */
     @Transactional
-    public void withdraw(String AccountNumber, BigDecimal sumRub) {
-        Account account = accountRepository.lockByAccountNumber(AccountNumber);
+    public void withdraw(String accountNumber, BigDecimal sumRub) {
+        Account account = accountRepository.lockByAccountNumber(accountNumber).orElseThrow(() -> new NotFoundAccountException(accountNumber));
+        ;
         if (account.getSumRub().compareTo(sumRub) < 0) {
             throw new BadRequestAccountException(insufficientFunds);
         }
@@ -67,7 +68,7 @@ public class AccountService {
 
     public Account findByAccountNumber(String accountNumber) {
         return accountRepository.findByAccountNumber(accountNumber)
-                .orElseThrow(() -> new NotFoundAccountException("Could not find account by number: " + accountNumber));
+                .orElseThrow(() -> new NotFoundAccountException(accountNumber));
     }
 
 }

@@ -24,6 +24,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import ru.domclick.am.account.api.AccountsApi;
+import ru.domclick.am.account.dto.OperationResponse;
 import ru.domclick.am.exception.BadRequestAccountException;
 import ru.domclick.am.exception.NotFoundAccountException;
 import ru.domclick.am.exception.ServiceErrorException;
@@ -45,14 +46,14 @@ public class AccountExceptionHandler extends ResponseEntityExceptionHandler {
             BadRequestAccountException.class
     })
     public ResponseEntity<Object> handleBadRequestException(Exception ex, WebRequest request) {
-        return handleExceptionInternal(ex, getMessage(ex), new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+        return handleExceptionInternal(ex, new OperationResponse().messageResult(getMessage(ex)), new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
     }
 
     @ExceptionHandler(value = {
             NotFoundAccountException.class
     })
     public ResponseEntity<Object> notFoundRequestException(Exception ex, WebRequest request) {
-        return handleExceptionInternal(ex, getMessage(ex), new HttpHeaders(), HttpStatus.NOT_FOUND, request);
+        return handleExceptionInternal(ex, new OperationResponse().messageResult(getMessage(ex)), new HttpHeaders(), HttpStatus.NOT_FOUND, request);
     }
 
     @Override
