@@ -21,7 +21,6 @@ import java.math.BigDecimal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
@@ -58,7 +57,7 @@ class AccountManagementControllerTest {
                 .content(new Gson().toJson(transferRequest(account1Sum.add(BigDecimal.ONE))))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.messageResult").value(containsString("Account has insufficient funds")));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.messageResult").value("Account has insufficient funds"));
     }
 
     @Test
@@ -67,7 +66,7 @@ class AccountManagementControllerTest {
                 .content(new Gson().toJson(transferRequest(new BigDecimal("0.5"))))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.messageResult").value(containsString("must be greater than or equal to 1")));
     }
 
     @Test
@@ -87,7 +86,7 @@ class AccountManagementControllerTest {
                 .content(new Gson().toJson(new OperationData().sumRub(BigDecimal.TEN)))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.messageResult").value(containsString("Could not find account by number: " + StringUtils.repeat("21", 10))));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.messageResult").value("Could not find account by number: " + StringUtils.repeat("21", 10)));
     }
 
     @Test
@@ -97,7 +96,7 @@ class AccountManagementControllerTest {
                 .content(new Gson().toJson(new OperationData().sumRub(sumRub.add(BigDecimal.ONE))))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.messageResult").value(containsString("Account has insufficient funds")));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.messageResult").value("Account has insufficient funds"));
     }
 
     @Test
@@ -117,7 +116,7 @@ class AccountManagementControllerTest {
                 .content(new Gson().toJson(new OperationData().sumRub(BigDecimal.ONE)))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.messageResult").value(containsString("Could not find account by number: " + StringUtils.repeat("21", 10))));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.messageResult").value("Could not find account by number: " + StringUtils.repeat("21", 10)));
     }
 
     private TransferRequest transferRequest(BigDecimal sum) {
