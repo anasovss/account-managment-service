@@ -3,8 +3,6 @@ package ru.domclick.am.model;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -30,11 +28,14 @@ public class Account {
     @Column(name = "sum_rub")
     private BigDecimal sumRub;
 
-    @CreatedDate
     @Column(name = "create_date")
     private LocalDateTime createDate;
 
-    @LastModifiedDate
     @Column(name = "modify_date")
     private LocalDateTime modifyDate;
+
+    @PreUpdate
+    protected void onUpdate() {
+        modifyDate = LocalDateTime.now();
+    }
 }
