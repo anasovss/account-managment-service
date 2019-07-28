@@ -8,7 +8,6 @@
  */
 package ru.domclick.am.controller;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -33,7 +32,6 @@ import ru.domclick.am.generated.dto.OperationResponse;
 /**
  * Общий обработчик ошибок с сервера
  */
-@Slf4j
 @ControllerAdvice(assignableTypes = AccountsApi.class)
 public class AccountExceptionHandler extends ResponseEntityExceptionHandler {
 

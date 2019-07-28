@@ -26,9 +26,9 @@ public class AccountService {
 
     /**
      * Операция перевода средств с одного счета на другой.
-     * Вызываем lock по сортированному порядку счетов, чтобы избежать deadlock в случае, например,
-     * когда у нас 2 потока одновременно вызывают методы
-     * transfer(accountNumber1, accountNumber2, sum) и transfer(accountNumber2, accountNumber1, sum) соответственно.
+     * Вызываем lock по сортированному порядку счетов, чтобы избежать deadlock.
+     * Пример deadlock: 2 потока одновременно вызывают методы
+     * transfer(accountNumber1, accountNumber2, sum1) и transfer(accountNumber2, accountNumber1, sum2) соответственно.
      *
      * @param accountNumberFrom номер счета списания
      * @param accountNumberTo   номер счета зачисления
@@ -46,6 +46,7 @@ public class AccountService {
         Account accountTo = firstAccount.getAccountNumber().equals(accountNumberTo) ? firstAccount : secondAccount;
         Account accountFrom = firstAccount.getAccountNumber().equals(accountNumberFrom) ? firstAccount : secondAccount;
         if (accountFrom.getSumRub().compareTo(sumRub) < 0) {
+            log.error("Transfer fail. Insufficient funds in the account: {}", accountFrom.getAccountNumber());
             throw new BadRequestAccountException(insufficientFunds);
         }
         sumRub = sumRub.setScale(2, ROUND_DOWN);
@@ -71,6 +72,7 @@ public class AccountService {
     public void withdraw(String accountNumber, BigDecimal sumRub) {
         Account account = lockByAccountNumber(accountNumber);
         if (account.getSumRub().compareTo(sumRub) < 0) {
+            log.error("Withdrawal fail. Insufficient funds in the account: {}", accountNumber);
             throw new BadRequestAccountException(insufficientFunds);
         }
         account.setSumRub(account.getSumRub().subtract(sumRub.setScale(2, ROUND_DOWN)));
