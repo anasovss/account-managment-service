@@ -1,7 +1,6 @@
 package ru.domclick.am.service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -22,12 +21,12 @@ public class AccountService {
     private final AccountRepository accountRepository;
 
     /**
+     * Операция перевода средств с одного счета на другой. Задан порядок lock, чтобы избежать deadlock
      * @param accountNumberFrom номер счета списания
      * @param accountNumberTo   номер счета зачисления
      * @param sumRub            сумма перевода в рублях
      */
     @Transactional
-    @SneakyThrows
     public void transfer(String accountNumberFrom, String accountNumberTo, BigDecimal sumRub) {
         String firstLockAccountNumber = accountNumberFrom.compareTo(accountNumberTo) > 0 ? accountNumberFrom : accountNumberTo;
         String secondLockAccountNumber = firstLockAccountNumber.equals(accountNumberFrom) ? accountNumberTo : accountNumberFrom;
@@ -48,7 +47,7 @@ public class AccountService {
      */
     @Transactional
     public void deposit(String accountNumber, BigDecimal sumRub) {
-        Account account = accountRepository.lockByAccountNumber(accountNumber).orElseThrow(() -> new NotFoundAccountException(accountNumber));
+        Account account = lockByAccountNumber(accountNumber);
         account.setSumRub(account.getSumRub().add(sumRub));
     }
 
@@ -58,8 +57,7 @@ public class AccountService {
      */
     @Transactional
     public void withdraw(String accountNumber, BigDecimal sumRub) {
-        Account account = accountRepository.lockByAccountNumber(accountNumber).orElseThrow(() -> new NotFoundAccountException(accountNumber));
-        ;
+        Account account = lockByAccountNumber(accountNumber);
         if (account.getSumRub().compareTo(sumRub) < 0) {
             throw new BadRequestAccountException(insufficientFunds);
         }
@@ -68,6 +66,11 @@ public class AccountService {
 
     public Account findByAccountNumber(String accountNumber) {
         return accountRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new NotFoundAccountException(accountNumber));
+    }
+
+    private Account lockByAccountNumber(String accountNumber) {
+        return accountRepository.lockByAccountNumber(accountNumber)
                 .orElseThrow(() -> new NotFoundAccountException(accountNumber));
     }
 

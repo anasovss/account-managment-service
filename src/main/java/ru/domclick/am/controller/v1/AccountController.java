@@ -1,6 +1,7 @@
 package ru.domclick.am.controller.v1;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,6 +19,14 @@ import ru.domclick.am.service.AccountService;
 @RequiredArgsConstructor
 public class AccountController implements AccountsApi {
 
+    @Value("${errorResponse.sameAccounts}")
+    private String sameAccounts;
+    @Value("${operationResponse.depositSuccessful}")
+    private String depositSuccessfulMessage;
+    @Value("${operationResponse.withdrawalSuccessful}")
+    private String withdrawalSuccessfulMessage;
+    @Value("${operationResponse.transferSuccessful}")
+    private String transferSuccessfulMessage;
     private final AccountService accountService;
 
     @GetMapping(value = "accounts/{accountNumber}")
@@ -28,25 +37,25 @@ public class AccountController implements AccountsApi {
     @Override
     public ResponseEntity<OperationResponse> deposit(String accountNumber, OperationData operationData) {
         accountService.deposit(accountNumber, operationData.getSumRub());
-        return ResponseEntity.ok(new OperationResponse().messageResult("deposit SUCCESS"));
+        return ResponseEntity.ok(new OperationResponse().messageResult(depositSuccessfulMessage));
     }
 
     @Override
     public ResponseEntity<OperationResponse> transfer(TransferRequest transferRequest) {
         if (transferRequest.getAccountNumberFrom().equals(transferRequest.getAccountNumberTo())) {
-            throw new BadRequestAccountException("Account numbers are the same");
+            throw new BadRequestAccountException(sameAccounts);
         }
         accountService.transfer(
                 transferRequest.getAccountNumberFrom(),
                 transferRequest.getAccountNumberTo(),
                 transferRequest.getOperationData().getSumRub()
         );
-        return ResponseEntity.ok(new OperationResponse().messageResult("transfer SUCCESS"));
+        return ResponseEntity.ok(new OperationResponse().messageResult(transferSuccessfulMessage));
     }
 
     @Override
     public ResponseEntity<OperationResponse> withdraw(String accountNumber, OperationData operationData) {
         accountService.withdraw(accountNumber, operationData.getSumRub());
-        return ResponseEntity.ok(new OperationResponse().messageResult("withdraw SUCCESS"));
+        return ResponseEntity.ok(new OperationResponse().messageResult(withdrawalSuccessfulMessage));
     }
 }

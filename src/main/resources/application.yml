@@ -14,6 +14,7 @@ spring:
     change-log: classpath:db/changesets/master.xml
     check-change-log-location: true
     enabled: true
+    contexts: main
   datasource:
     driver-class-name: "org.h2.Driver"
     url: ${DATASOURCE_URL:jdbc:h2:mem:db;DB_CLOSE_DELAY=-1}
@@ -22,3 +23,9 @@ spring:
 
 errorResponse:
   insufficientFunds: Account has insufficient funds
+  sameAccounts: Account numbers are the same
+
+operationResponse:
+  depositSuccessful: The deposit operation was successful
+  transferSuccessful: The transfer of funds was successful
+  withdrawalSuccessful: The withdrawal operation was successful
