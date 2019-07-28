@@ -123,8 +123,8 @@
                             <language>spring</language>
                             <output>${basedir}/target/generated-sources</output>
                             <language>spring</language>
-                            <apiPackage>ru.domclick.am.account.api</apiPackage>
-                            <modelPackage>ru.domclick.am.account.dto</modelPackage>
+                            <apiPackage>ru.domclick.am.generated.api</apiPackage>
+                            <modelPackage>ru.domclick.am.generated.dto</modelPackage>
                             <generateSupportingFiles>false</generateSupportingFiles>
                             <configOptions>
                                 <sourceFolder>src/gen/java/main</sourceFolder>

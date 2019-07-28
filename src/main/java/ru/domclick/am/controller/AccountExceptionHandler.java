@@ -23,11 +23,11 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
-import ru.domclick.am.account.api.AccountsApi;
-import ru.domclick.am.account.dto.OperationResponse;
 import ru.domclick.am.exception.BadRequestAccountException;
 import ru.domclick.am.exception.NotFoundAccountException;
 import ru.domclick.am.exception.ServiceErrorException;
+import ru.domclick.am.generated.api.AccountsApi;
+import ru.domclick.am.generated.dto.OperationResponse;
 
 
 /**

@@ -18,20 +18,26 @@ import java.math.BigDecimal;
 public class AccountService {
     @Value("${errorResponse.insufficientFunds}")
     private String insufficientFunds;
+    @Value("${errorResponse.sameAccounts}")
+    private String sameAccounts;
     private final AccountRepository accountRepository;
 
     /**
      * Операция перевода средств с одного счета на другой. Задан порядок lock, чтобы избежать deadlock
+     *
      * @param accountNumberFrom номер счета списания
      * @param accountNumberTo   номер счета зачисления
      * @param sumRub            сумма перевода в рублях
      */
     @Transactional
     public void transfer(String accountNumberFrom, String accountNumberTo, BigDecimal sumRub) {
+        if (accountNumberFrom.equals(accountNumberTo)) {
+            throw new BadRequestAccountException(sameAccounts);
+        }
         String firstLockAccountNumber = accountNumberFrom.compareTo(accountNumberTo) > 0 ? accountNumberFrom : accountNumberTo;
         String secondLockAccountNumber = firstLockAccountNumber.equals(accountNumberFrom) ? accountNumberTo : accountNumberFrom;
-        Account firstAccount = accountRepository.lockByAccountNumber(firstLockAccountNumber).orElseThrow(() -> new NotFoundAccountException(firstLockAccountNumber));
-        Account secondAccount = accountRepository.lockByAccountNumber(secondLockAccountNumber).orElseThrow(() -> new NotFoundAccountException(firstLockAccountNumber));
+        Account firstAccount = lockByAccountNumber(firstLockAccountNumber);
+        Account secondAccount = lockByAccountNumber(secondLockAccountNumber);
         Account accountTo = firstAccount.getAccountNumber().equals(accountNumberTo) ? firstAccount : secondAccount;
         Account accountFrom = firstAccount.getAccountNumber().equals(accountNumberFrom) ? firstAccount : secondAccount;
         if (accountFrom.getSumRub().compareTo(sumRub) < 0) {

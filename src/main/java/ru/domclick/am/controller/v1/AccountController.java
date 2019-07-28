@@ -7,11 +7,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.domclick.am.account.api.AccountsApi;
-import ru.domclick.am.account.dto.OperationData;
-import ru.domclick.am.account.dto.OperationResponse;
-import ru.domclick.am.account.dto.TransferRequest;
-import ru.domclick.am.exception.BadRequestAccountException;
+import ru.domclick.am.generated.api.AccountsApi;
+import ru.domclick.am.generated.dto.OperationData;
+import ru.domclick.am.generated.dto.OperationResponse;
+import ru.domclick.am.generated.dto.TransferRequest;
 import ru.domclick.am.service.AccountService;
 
 @RestController
@@ -19,8 +18,6 @@ import ru.domclick.am.service.AccountService;
 @RequiredArgsConstructor
 public class AccountController implements AccountsApi {
 
-    @Value("${errorResponse.sameAccounts}")
-    private String sameAccounts;
     @Value("${operationResponse.depositSuccessful}")
     private String depositSuccessfulMessage;
     @Value("${operationResponse.withdrawalSuccessful}")
@@ -42,9 +39,6 @@ public class AccountController implements AccountsApi {
 
     @Override
     public ResponseEntity<OperationResponse> transfer(TransferRequest transferRequest) {
-        if (transferRequest.getAccountNumberFrom().equals(transferRequest.getAccountNumberTo())) {
-            throw new BadRequestAccountException(sameAccounts);
-        }
         accountService.transfer(
                 transferRequest.getAccountNumberFrom(),
                 transferRequest.getAccountNumberTo(),
