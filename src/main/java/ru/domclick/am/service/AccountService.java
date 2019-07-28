@@ -12,6 +12,8 @@ import ru.domclick.am.repository.AccountRepository;
 
 import java.math.BigDecimal;
 
+import static java.math.BigDecimal.ROUND_DOWN;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -23,7 +25,10 @@ public class AccountService {
     private final AccountRepository accountRepository;
 
     /**
-     * Операция перевода средств с одного счета на другой. Задан порядок lock, чтобы избежать deadlock
+     * Операция перевода средств с одного счета на другой.
+     * Вызываем lock по сортированному порядку счетов, чтобы избежать deadlock в случае, например,
+     * когда у нас 2 потока одновременно вызывают методы
+     * transfer(accountNumber1, accountNumber2, sum) и transfer(accountNumber2, accountNumber1, sum) соответственно.
      *
      * @param accountNumberFrom номер счета списания
      * @param accountNumberTo   номер счета зачисления
@@ -43,6 +48,7 @@ public class AccountService {
         if (accountFrom.getSumRub().compareTo(sumRub) < 0) {
             throw new BadRequestAccountException(insufficientFunds);
         }
+        sumRub = sumRub.setScale(2, ROUND_DOWN);
         accountFrom.setSumRub(accountFrom.getSumRub().subtract(sumRub));
         accountTo.setSumRub(accountTo.getSumRub().add(sumRub));
     }
@@ -54,7 +60,7 @@ public class AccountService {
     @Transactional
     public void deposit(String accountNumber, BigDecimal sumRub) {
         Account account = lockByAccountNumber(accountNumber);
-        account.setSumRub(account.getSumRub().add(sumRub));
+        account.setSumRub(account.getSumRub().add(sumRub.setScale(2, ROUND_DOWN)));
     }
 
     /**
@@ -67,7 +73,7 @@ public class AccountService {
         if (account.getSumRub().compareTo(sumRub) < 0) {
             throw new BadRequestAccountException(insufficientFunds);
         }
-        account.setSumRub(account.getSumRub().subtract(sumRub));
+        account.setSumRub(account.getSumRub().subtract(sumRub.setScale(2, ROUND_DOWN)));
     }
 
     public Account findByAccountNumber(String accountNumber) {

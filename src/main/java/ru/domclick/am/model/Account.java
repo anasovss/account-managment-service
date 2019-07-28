@@ -1,8 +1,6 @@
 package ru.domclick.am.model;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -11,9 +9,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "account")
-@Getter
-@Setter
-@EqualsAndHashCode
+@Data
 public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

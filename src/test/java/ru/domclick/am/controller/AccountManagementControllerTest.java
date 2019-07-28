@@ -42,12 +42,12 @@ class AccountManagementControllerTest {
         BigDecimal account1Sum = accountService.findByAccountNumber(ACCOUNT_NUMBER_1).getSumRub();
         BigDecimal account2Sum = accountService.findByAccountNumber(ACCOUNT_NUMBER_2).getSumRub();
         mvc.perform(post("/v1/accounts/transfer")
-                .content(new Gson().toJson(transferRequest(new BigDecimal("200"))))
+                .content(new Gson().toJson(transferRequest(new BigDecimal("10.9999"))))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.messageResult").value("The transfer of funds was successful"));
-        assertThat(accountService.findByAccountNumber(ACCOUNT_NUMBER_1).getSumRub()).isEqualTo(account1Sum.subtract(new BigDecimal("200")));
-        assertThat(accountService.findByAccountNumber(ACCOUNT_NUMBER_2).getSumRub()).isEqualTo(account2Sum.add(new BigDecimal("200")));
+        assertThat(accountService.findByAccountNumber(ACCOUNT_NUMBER_1).getSumRub()).isEqualTo(account1Sum.subtract(new BigDecimal("10.99")));
+        assertThat(accountService.findByAccountNumber(ACCOUNT_NUMBER_2).getSumRub()).isEqualTo(account2Sum.add(new BigDecimal("10.99")));
     }
 
     @Test
@@ -103,11 +103,11 @@ class AccountManagementControllerTest {
     void deposit200OkTest() throws Exception {
         BigDecimal sumRub = accountService.findByAccountNumber(ACCOUNT_NUMBER_1).getSumRub();
         mvc.perform(post("/v1/accounts/{accountNumber}/deposit", ACCOUNT_NUMBER_1)
-                .content(new Gson().toJson(new OperationData().sumRub(new BigDecimal("100"))))
+                .content(new Gson().toJson(new OperationData().sumRub(new BigDecimal("100.9999"))))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.messageResult").value("The deposit operation was successful"));
-        assertThat(accountService.findByAccountNumber(ACCOUNT_NUMBER_1).getSumRub()).isEqualTo(sumRub.add(new BigDecimal("100")));
+        assertThat(accountService.findByAccountNumber(ACCOUNT_NUMBER_1).getSumRub()).isEqualTo(sumRub.add(new BigDecimal("100.99")));
     }
 
     @Test
