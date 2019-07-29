@@ -46,7 +46,7 @@ public class AccountService {
         Account accountTo = firstAccount.getAccountNumber().equals(accountNumberTo) ? firstAccount : secondAccount;
         Account accountFrom = firstAccount.getAccountNumber().equals(accountNumberFrom) ? firstAccount : secondAccount;
         if (accountFrom.getSumRub().compareTo(sumRub) < 0) {
-            log.error("Transfer fail. Insufficient funds in the account: {}", accountFrom.getAccountNumber());
+            log.info("Transfer fail. Insufficient funds in the account: {}", accountFrom.getAccountNumber());
             throw new BadRequestAccountException(insufficientFunds);
         }
         sumRub = sumRub.setScale(2, ROUND_DOWN);
@@ -72,7 +72,7 @@ public class AccountService {
     public void withdraw(String accountNumber, BigDecimal sumRub) {
         Account account = lockByAccountNumber(accountNumber);
         if (account.getSumRub().compareTo(sumRub) < 0) {
-            log.error("Withdrawal fail. Insufficient funds in the account: {}", accountNumber);
+            log.info("Withdrawal fail. Insufficient funds in the account: {}", accountNumber);
             throw new BadRequestAccountException(insufficientFunds);
         }
         account.setSumRub(account.getSumRub().subtract(sumRub.setScale(2, ROUND_DOWN)));
@@ -80,12 +80,18 @@ public class AccountService {
 
     public Account findByAccountNumber(String accountNumber) {
         return accountRepository.findByAccountNumber(accountNumber)
-                .orElseThrow(() -> new NotFoundAccountException(accountNumber));
+                .orElseThrow(() -> {
+                    log.error("Could not find account by number: " + accountNumber);
+                    return new NotFoundAccountException(accountNumber);
+                });
     }
 
     private Account lockByAccountNumber(String accountNumber) {
         return accountRepository.lockByAccountNumber(accountNumber)
-                .orElseThrow(() -> new NotFoundAccountException(accountNumber));
+                .orElseThrow(() -> {
+                    log.error("Could not find account by number: " + accountNumber);
+                    return new NotFoundAccountException(accountNumber);
+                });
     }
 
 }
